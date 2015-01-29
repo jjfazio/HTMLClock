@@ -3,7 +3,7 @@ body {
 	font-family: "Verdana, Geneva, sans-serif";
 }
 
-p {
+#time {
 	font-size: 100px;
 	color: #fff;
 	margin: 10px;
@@ -12,4 +12,28 @@ p {
 .content {
 	text-align: center;
 	padding: 50px;
+}
+
+#forecastLabel {
+	padding-top: 40px;
+}
+
+.cold {
+	background-color: #95A5A6;
+}
+
+.chilly {
+	background-color: #1ABC9C;
+}
+
+.nice {
+	background-color: #2980B9;
+}
+
+.warm {
+	background-color: #E67E22;
+}
+
+.hot {
+	background-color: #E74C3C;
 }
