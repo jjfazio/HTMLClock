@@ -52,13 +52,15 @@ var hideAlarmPopup = function() {
 	$("#mask, #popup").addClass("hide");
 };
 
-var insertAlarm = function(time, alarmName) {
+var insertAlarm = function(time, alarmName, alarmId) {
+	var nameDiv = $("<p/>", { class: "name", text: alarmName});
+	var timeDiv = $("<p/>", { class: "time", text: time});
 	var containerDiv = $("<div/>", { class: "flexable"});
-	var nameDiv = $("<div/>", { class: "name", text: alarmName});
-	var timeDiv = $("<div/>", { class: "time", text: time});
+	var checkboxDiv = $("<input/>", {type: "checkbox", name: "checkboxAlarm", id: alarmId});
 
 	containerDiv.append(nameDiv);
 	containerDiv.append(timeDiv);
+	containerDiv.append(checkboxDiv);
 
 	$("#alarms").append(containerDiv);
 };
@@ -75,11 +77,49 @@ var addAlarm = function() {
 	var AlarmObject = Parse.Object.extend("Alarm");
    var alarmObject = new AlarmObject();
       alarmObject.save({"time": time,"alarmName": alarmName}, {
-      success: function(object) {
-      	insertAlarm(time, alarmName);
+      success: function(myAlarm) {
+      	insertAlarm(time, alarmName, myAlarm.id);
 			hideAlarmPopup();
-      }
+      },
+      error: function(object, error) {
+	   	console.log("Error creating " + object + " " + error);
+  		}
    });
+};
+
+var getAlarmsToDelete = function() {
+	var alarmIds = [];
+
+   $(":checkbox").each(function() {
+   	if (this.checked) {
+   		alarmIds.push(this.id);
+   	}
+   });
+
+   deleteAlarm(alarmIds);
+}
+
+var deleteAlarm = function(alarmIds) {
+
+	alarmIds.forEach(function(alarmId) {
+		var alarm = Parse.Object.extend("Alarm");
+		var query = new Parse.Query(alarm);
+
+		$("#" + alarmId).parent().addClass("hide");
+
+		query.get(alarmId, {
+	  		success: function(myAlarm) {
+	    		myAlarm.destroy({
+				   error: function(myObject, error) {
+				     console.log("Error deleting " + object + " " + error);
+				   }
+				});
+	  		},
+	  		error: function(object, error) {
+		   	console.log("Error getting " + object + " " + error);
+	  		}
+		});
+	});
 };
 
 var getAllAlarms = function() {
@@ -90,7 +130,7 @@ var getAllAlarms = function() {
    	query.find({
         success: function(results) {
           for (var i = 0; i < results.length; i++) { 
-            insertAlarm(results[i].get("time"), results[i].get("alarmName"));
+            insertAlarm(results[i].get("time"), results[i].get("alarmName"), results[i].id);
           }
         }
    });
