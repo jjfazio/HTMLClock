@@ -44,7 +44,61 @@ var getTemp = function() {
 	});
 };
 
+var showAlarmPopup = function() {
+	$("#mask, #popup").removeClass("hide");
+};
+
+var hideAlarmPopup = function() {
+	$("#mask, #popup").addClass("hide");
+};
+
+var insertAlarm = function(time, alarmName) {
+	var containerDiv = $("<div/>", { class: "flexable"});
+	var nameDiv = $("<div/>", { class: "name", text: alarmName});
+	var timeDiv = $("<div/>", { class: "time", text: time});
+
+	containerDiv.append(nameDiv);
+	containerDiv.append(timeDiv);
+
+	$("#alarms").append(containerDiv);
+};
+
+var addAlarm = function() {
+	var hours, mins, ampm, alarmName, time;
+
+	hours = $("#hours option:selected").text();
+	mins = $("#mins option:selected").text();
+	ampm = $("#ampm option:selected").text();
+	alarmName = $("#alarmName").val();
+	time = hours.concat(":").concat(mins).concat(ampm);
+
+	var AlarmObject = Parse.Object.extend("Alarm");
+   var alarmObject = new AlarmObject();
+      alarmObject.save({"time": time,"alarmName": alarmName}, {
+      success: function(object) {
+      	insertAlarm(time, alarmName);
+			hideAlarmPopup();
+      }
+   });
+};
+
+var getAllAlarms = function() {
+	Parse.initialize("8LTFc6zT0wo7rIhp6Py33skJlKoTb9Um2uFVSovQ", "v4AFiOe49foBi66PTpt1oyr5kp4IyxY5cqQuQEZA");
+
+	var AlarmObject = Parse.Object.extend("Alarm");
+   var query = new Parse.Query(AlarmObject);
+   	query.find({
+        success: function(results) {
+          for (var i = 0; i < results.length; i++) { 
+            insertAlarm(results[i].get("time"), results[i].get("alarmName"));
+          }
+        }
+   });
+
+};
+
 $(document).ready(function() {
 	getTime();
 	getTemp();
+	getAllAlarms();
 });
