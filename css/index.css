@@ -37,3 +37,8 @@ body {
 .hot {
 	background-color: #E74C3C;
 }
+
+.login {
+	text-align: center;
+	margin-bottom: 20px;
+}
