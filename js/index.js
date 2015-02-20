@@ -66,25 +66,32 @@ var insertAlarm = function(time, alarmName, alarmId) {
 };
 
 var addAlarm = function() {
-	var hours, mins, ampm, alarmName, time;
+	var hours, mins, ampm, alarmName, time, userId;
 
-	hours = $("#hours option:selected").text();
-	mins = $("#mins option:selected").text();
-	ampm = $("#ampm option:selected").text();
-	alarmName = $("#alarmName").val();
-	time = hours.concat(":").concat(mins).concat(ampm);
+	userId = localStorage["userId"];
 
-	var AlarmObject = Parse.Object.extend("Alarm");
-   var alarmObject = new AlarmObject();
-      alarmObject.save({"time": time,"alarmName": alarmName}, {
-      success: function(myAlarm) {
-      	insertAlarm(time, alarmName, myAlarm.id);
-			hideAlarmPopup();
-      },
-      error: function(object, error) {
-	   	console.log("Error creating " + object + " " + error);
-  		}
-   });
+	if (userId !== null) {
+		hours = $("#hours option:selected").text();
+		mins = $("#mins option:selected").text();
+		ampm = $("#ampm option:selected").text();
+		alarmName = $("#alarmName").val();
+		time = hours.concat(":").concat(mins).concat(ampm);
+
+		var AlarmObject = Parse.Object.extend("Alarm");
+		var alarmObject = new AlarmObject();
+		alarmObject.save({"time": time,"alarmName": alarmName, "userId": userId}, {
+			success: function(myAlarm) {
+				insertAlarm(time, alarmName, myAlarm.id);
+				hideAlarmPopup();
+			},
+			error: function(object, error) {
+				console.log("Error creating " + object + " " + error);
+			}
+		});
+
+	} else {
+		alert('Must be logged in to set alarm');
+	}
 };
 
 var getAlarmsToDelete = function() {
@@ -123,19 +130,29 @@ var deleteAlarm = function(alarmIds) {
 };
 
 var getAllAlarms = function() {
-	Parse.initialize("8LTFc6zT0wo7rIhp6Py33skJlKoTb9Um2uFVSovQ", "v4AFiOe49foBi66PTpt1oyr5kp4IyxY5cqQuQEZA");
+	var userId = window.localStorage["userId"];
 
-	var AlarmObject = Parse.Object.extend("Alarm");
-   var query = new Parse.Query(AlarmObject);
-   	query.find({
-        success: function(results) {
-          for (var i = 0; i < results.length; i++) { 
-            insertAlarm(results[i].get("time"), results[i].get("alarmName"), results[i].id);
-          }
-        }
-   });
+	if (userId !== null) {
+		Parse.initialize("8LTFc6zT0wo7rIhp6Py33skJlKoTb9Um2uFVSovQ", "v4AFiOe49foBi66PTpt1oyr5kp4IyxY5cqQuQEZA");
+
+		var AlarmObject = Parse.Object.extend("Alarm");
+		var query = new Parse.Query(AlarmObject);
+
+		query.equalTo("userId", userId)
+		query.find({
+			success: function(results) {
+				for (var i = 0; i < results.length; i++) { 
+					insertAlarm(results[i].get("time"), results[i].get("alarmName"), results[i].id);
+				}
+			}
+		});
+	}
 
 };
+
+function testCall() {
+	Console.log("Worked");
+}
 
 $(document).ready(function() {
 	getTime();
