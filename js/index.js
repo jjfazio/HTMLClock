@@ -81,6 +81,7 @@ var addAlarm = function() {
 		var alarmObject = new AlarmObject();
 		alarmObject.save({"time": time,"alarmName": alarmName, "userId": userId}, {
 			success: function(myAlarm) {
+				ga('send', 'event', 'Alarm', 'Add');
 				insertAlarm(time, alarmName, myAlarm.id);
 				hideAlarmPopup();
 			},
@@ -117,6 +118,9 @@ var deleteAlarm = function(alarmIds) {
 		query.get(alarmId, {
 	  		success: function(myAlarm) {
 	    		myAlarm.destroy({
+	    			sucess: function(alarm) {
+	    				ga('send', 'event', 'Alarm', 'Delete');
+	    			},
 				   error: function(myObject, error) {
 				     console.log("Error deleting " + object + " " + error);
 				   }
