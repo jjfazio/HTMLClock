@@ -155,7 +155,7 @@ var getAllAlarms = function() {
 };
 
 function testCall() {
-	Console.log("Worked");
+	console.log("Worked");
 }
 
 $(document).ready(function() {
